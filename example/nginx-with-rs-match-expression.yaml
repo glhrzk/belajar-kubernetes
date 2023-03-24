@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-rs-express
+spec:
+  replicas: 3
+  selector:
+    matchExpressions: #contoh dari penggunaan match expression IN di Replication Set
+      - key: app
+        operator: In
+        values:
+          - production
+      - key: dev
+        operator: In
+        values:
+          - galih
+          - rizki
+          - galihrizki
+  template:
+    metadata:
+      name: pod-name
+      labels:
+        app: production
+        dev: galihrizki
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80

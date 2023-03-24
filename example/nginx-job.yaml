@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-nginx
+spec:
+  completions: 5 #jumlah job yang akan dijalankan
+  parallelism: 2 #jumlah core/task job yang akan dijalankan
+  selector:
+    matchLabels:
+      abel-key1: label-value1
+  template:
+    metadata:
+      name: pod-name
+      labels:
+        label-key1: label-value1
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: container-name
+          image: image-name
+          ports:
+            - containerPort: 80
