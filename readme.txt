@@ -39,6 +39,7 @@ perintah / command prompt kubectl
 19. kubectl get replicaset [untuk menampilkan semua rs yang ada]
 
 Pod:
+kenapa butuh pod? kenapa gak langsung container?: karena pod bisa menjalankan 
 Pod adalah unit terkecil yang bisa di deploy ke Kubernetes cluster, Pod berisi satu atau lebih dari container.
 secara sederhana pod adalah aplikasi yang kita running di Kubernetes cluster.
 dalam 1pod pasti di running dalam 1node, tidak bisa di partial/pisah.
