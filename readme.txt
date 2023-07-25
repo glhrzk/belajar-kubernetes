@@ -72,7 +72,7 @@ walaupun pod menggunakan namespace yang berbeda pod akan tetap bisa saling berko
 
 Probe:
 Liveness Probe: melakukan pengecekan, jika respon dari pengecekan tidak sehat/unhealthy maka akan merestart pod
-Readiness Probe: melakukan pengecekan, jika respon dari pengecekan tidak sehat/unhealthy maka akan menghentikan/stop rx traffic
+Readiness Probe: melakukan pengecekan, jika respon dari pengecekan tidak sehat/unhealthy maka akan menghentikan/stop rx traffic pod tersebut
 Startup Probe: melakukan pengecekan, yang dilakukan hanya diawal; cocok digunakan untuk aplikasi yang startupnya lama seperti mongo express
     detail pengecekan probe:
     1. initialDelaySecond, waktu counter/pengecekan setelah container/pod dibuat.
