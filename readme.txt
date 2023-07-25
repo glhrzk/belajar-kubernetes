@@ -104,7 +104,7 @@ NotExist, label tidak boleh ada
 
 Daemon set:
 pada saat membuat pod menggunakan rc/rs pada defaultnya kubernetes akan memilih secara random node yang dipilih.
-jika kita ingin menjalankan pod di setiap node yang ada (disetiap node dipasang pod/aplikasi), kita bisa mengaturnya secara manual dengan daemon set.
+jika kita ingin mengatur di node mana pod akan dibuat dan dibatasi maksimal pod yang akan di pasang (contoh 1 pod/aplikasi per node), kita bisa mengaturnya secara manual dengan daemon set.
  contoh kasus:
  1. aplikasi untuk monitoring node
  2. aplikasi untuk mengambil lode node
