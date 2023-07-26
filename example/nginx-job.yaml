@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-nginx
+  labels:
+    app: nginx
+  annotations:
+    annotation-key1: annotation-value1
+spec:
+  completions: 5
+  parallelism: 2
+  template:
+    metadata:
+      labels:
+        version: nginx-app
+      name: nginx-app
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: nginx-app
+          image: nginx:latest
+          ports:
+            - containerPort: 80
