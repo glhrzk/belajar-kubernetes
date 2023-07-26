@@ -103,14 +103,14 @@ NotExist, label tidak boleh ada
 
 Daemon set:
 pada saat membuat pod menggunakan rc/rs pada defaultnya kubernetes akan memilih secara random node yang dipilih.
-jika kita ingin mengatur di node mana pod akan dibuat dan dibatasi maksimal pod yang akan di pasang (contoh 1 pod/aplikasi per node), kita bisa mengaturnya secara manual dengan daemon set.
+jika kita ingin membuat di node mana pod akan dibuat atau akan menginstall ke semua node (contoh 1 pod/aplikasi per node), kita bisa mengaturnya secara manual dengan daemon set.
  contoh kasus:
  1. aplikasi untuk monitoring node
  2. aplikasi untuk mengambil lode node
 
 Job:
 job adalah resource di kubernetes yang digunakan untuk menjalan pod hanya sekali.
-berbeda dengan rc, rs, dan ds yang akan membuat secara otomatis ketika pod tersebut hilang/rusak.
+berbeda dengan rc, rs, dan daemonset yang akan membuat secara otomatis ketika pod tersebut hilang/rusak.
 job akan mati jika pekerjaannya akan selesai.
     contoh kasus:
     1. backup atau restore database
