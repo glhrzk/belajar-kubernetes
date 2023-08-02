@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: sharing-volume
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        name: nginx
+    spec:
+      volumes:
+        - name: html
+          emptyDir: {}
+      containers:
+        - name: nodejs-writer
+          image: khannedy/nodejs-writer
+          volumeMounts:
+            - mountPath: /app/html
+              name: html # seolah olah ketika container ini mengakses /app/html maka dia akan mengakses ke volume html
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /usr/share/nginx/html
+              name: html # jika kontainer nginx mengakses mount path diatas maka dia akan menakses ke volume html
+          
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-sharing-volume
+spec:
+  type: NodePort
+  selector:
+    name: nginx
+  ports:
+    - port: 8080
+      targetPort: 80
+      nodePort: 30001

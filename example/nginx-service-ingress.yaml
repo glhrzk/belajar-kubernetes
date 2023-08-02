@@ -61,7 +61,7 @@ spec:
     - host: nginx.glhrzk.local
       http:
         paths:
-          - path: /service1
+          - path: /
             pathType: Prefix
             backend:
               service:
