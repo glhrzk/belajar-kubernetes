@@ -32,11 +32,20 @@ perintah / command prompt kubectl
 12. kubectl get pod --namespace namanamespace [untuk melihat semua pod di namespace yang dituju, gunakana parameter -n untuk menyingkat]
 13. kubectl create -f namafile.yaml --namespace namanamespace [untuk membuat pod dengan namespace spesific, dengan catatan namespace tersebut harus sudah ada/dibuat]
 14. kubectl delete namespace namanamespace [jika namespace dihapus, maka semua pod yang menggunakan namespace tersebut akan dihapus juga]
-15. kubectl delete pod namapod1 namapod2 namapod3 [untuk menghapus pod]
+15. kubectl delete pod namapod1 namapod2 namapod3 [untuk menghapus pod] 
 16. kubectl delete pod --all --namespace namanamespace [menghapus semua pod berdasarkan namespace]
 17. kubectl get replicationcontroller [untuk melihat semua replicacontroller, bisa juga menggunakan kubectl get rc ]
 18. kubectl delete replicationcontroller namarc [untuk menghapus rc, jika rc dihapus maka semua pod yang didalamnya juga terhapus, jika pod yang didalamnya tidak terhapus gunakan parameter --cascade=false ]
 19. kubectl get replicaset [untuk menampilkan semua rs yang ada]
+20. kubectl label node namanode key=value
+21. kubectl get all
+21. kubectl get all --namespace namanamespace
+22. kubectl delete all --all
+23. kubectl delete all --all --namespace namanamespace
+25. kubectl exec nama-pod -- env [melihat env di pod]
+26. kubectl get endpoints nama-service
+27. minikube service nginx-service [untuk melihat node ip yang di exposes]
+
 
 Pod:
 Pod adalah unit terkecil yang bisa di deploy ke Kubernetes cluster, Pod berisi satu atau lebih dari container.
@@ -117,3 +126,71 @@ job akan mati jika pekerjaannya akan selesai.
     2. import atay expore data
     3. aplikasi batch
 
+Cronjob:
+cronjob di k8s menggunakan cronjob linux pada umumnya, berbeda dengan job, cronjob menggunakan JobTemplate.
+
+Nodeselector:
+jika kita tidak mengatur node mana yang akan di pilih ketika mendeploy maka k8s akan secara otomatis memilih node secara random.
+kita juga bisa mengatur jika ingin menentukan di node mana pod akan dibuat dengan memambahkan label pada nod.
+contoh kasus node yang dituju memiliki spesifikasi yang mumpuni seperti menggunakan GPU Dedicated, dan SSD.
+
+Get All:
+bisa digunakan untuk melihat semua resource (rs, ds, rc, cr, job, service)
+bisa juga digunakan untuk menghapus.
+kita juga bisa menambahkan parameter
+
+=============================[ SERVICE SERIES]=============================
+Service:
+service adalah resource di k8s yang digunakan untuk membuat satu gerbang untuk mengakses satu atau lebih Pod.
+service memiliki ip address dan port yang tidak pernah berubah selama service itu ada.
+client bisa mengakses service tersebut, dan secara otomatis akan meneruskan ke pod yang ada dibelakang service tersebut.
+dengan begini client/host tidak perlu tahu lokasi tiap pod, dan pod bisa bertambah berkurang, atau berpindah tanpa harus mengganggu client.
+ip atau port yang ada di service hanya bisa di akses oleh pod.
+
+jika pod lain ingin mengakses (pod lain) menggunakan service secara langsung tanpa harus mengetahui ip service, kita bisa menggunakan ENV variable atau DNS 
+  dengan syntax: nama-service.nama-namespace.svc.cluster.local , dengan catatan masih di dalam service yang sama.
+
+Endpoint:
+terkadang pod(aplikasi) membutuhkan akses ke aplikasi luar contoh payment gateway dan ekspedisi, external service atau endpoint bisa mengatasi itu, dibandingkan setiap pod mengaksesnya secara langsung kita bisa membuat endpoint yang menghandle itu semua.
+secara singkat ini adalah mengakses link/url di luar service (transmit/get data).
+
+Eksposes Service: 
+contoh: client/mobile/internet yang mengaksesnya.
+
+Tipe-tipe Service:
+- ClusterIp: mengekspos service di dalam internal kubernetes cluster (default)
+- ExternalName: memetakan service ke externalname (misalnya: example.com)
+- NodePort: mengekspos service pada setiap ip node dan port yang sama, kita bisa mengakses service dengant tipe ini, dari luar cluster melalui <nodeip>:<node:port>
+- LoadBalancer: mengeskpos service secara external dengan menggunakan loadbalanceer yang disediakan oleh penyedia layanan cloud.
+
+cara untuk ekspos service:
+-> dengan menggunakan nodePort, node akan membuka port yang akan meneruskan request ke service yang dituju.
+   dengan menambahkan type: NodePort dan nantinya akan dibuat port otomatis atau bisa juga kita tentukan. 
+   kekurangan:  harus mengekspos semua node yang ada, dan juga harus menghapal node dan ip yang ada bayangkan jika ada beberapa node maka akan sangat merepotkan.
+   
+-> dengan menggunakan loadbalancer, service bisa di akses via lb dan akan meneruskan request ke node port dan di lanjutkan ke service.
+   dengan menambahkan type: LoadBalancer dan nantinya akan dibuat port otomatis.
+   kekurangan:  harus mengekspos semua node yang ada, dan juga harus menghapal node dan ip yang ada.
+    
+-> menggunakan ingress, dimana ingress adalah resource yang memang ditujukan untuk mengekspos service. kekurangan inggress hanya beroperasi di level HTTP.
+    
+=============================[ SERVICE SERIES]=============================
+
+
+
+=============================[ VOLUME SERIES]=============================
+VOLUME:
+berkas/file/data di dalam container sifatnya tidak permanen, akan terhapus seiring dihapusnya pod atau container ataupun merestart, volume secara sederhana adalah sebuah directori yang bisa di akses oleh contianer-container di Pod.
+jenis-jenis volume:
+emptyDir: direktori sederhana (kosong) | tidak cocok digunakan di Prod
+hostPath: digunakan untuk menghasring direktori di node ke pod
+gitRepo: directory yang dibuat pertama kali dengan mengclone git repo
+nfs: sharing network file system.
+dll.
+
+Sharing Volume:
+karena didalam pod kita bisa membuat lebih dari satu container, maka volume di pod pun bisa kita sharing ke beberapa container.
+contoh, container pertama akan membuat file, container kedua akan memproses file.
+=============================[ VOLUME SERIES]=============================
+
+Environment Variable:
