@@ -17,6 +17,7 @@ Node:
 node adalah worker machine di kubernetes, node bisa saja dalam bentuk VM atau bentuk fisik.
 di dalam node selalu terdapat kubelete, kube-proxy dan container manager.
 
+===========================================================================================
 perintah / command prompt kubectl
 1. kubectl get nodes [untuk melihat semua node yang ada]
 2. kubectl describe node namaNode [untuk melihat detail node yang dituju]
@@ -45,7 +46,11 @@ perintah / command prompt kubectl
 25. kubectl exec nama-pod -- env [melihat env di pod]
 26. kubectl get endpoints nama-service
 27. minikube service nginx-service [untuk melihat node ip yang di exposes]
-
+28. kubectl apply -f deployment.yaml (membuat deployment)
+29. kubectl get deployments (melihat semua deployment)
+30. kubectl delete deployment namadeployment (menghapus deployment)
+31. kubectl describe deployment namadeployment (melihat deployment secara detail)
+===========================================================================================
 
 Pod:
 Pod adalah unit terkecil yang bisa di deploy ke Kubernetes cluster, Pod berisi satu atau lebih dari container.
@@ -194,3 +199,91 @@ contoh, container pertama akan membuat file, container kedua akan memproses file
 =============================[ VOLUME SERIES]=============================
 
 Environment Variable:
+environment variable di kubernetes sama/tidak beda jauh dengan environment di kontainer, yaitu agar dynamis tidak di hardcode.
+
+
+Config Map:
+digunakan untuk menyimpan konfigurasi aplikasi, seperti variabel lingkungan dan file konfigurasi, sebagai pasangan kunci-nilai. 
+
+
+Secret:
+sama seperti configmap tetapi dengan data yang sifatnya sensitive, seperti username password database, API key, Secret key dsj.
+data: (berarti memasukan data dalam bentuk bas64)
+stringData:(berarti memasukan dalam bentuk plainText)
+
+
+Downrade API:
+downward api memungkinankan kita mengambil informasi seputar pod dan node maelalui env variable.
+list metatada
+request.cpu = jumlah cpu yang di request
+request.memory = jumlah memory yang di request
+limits.cpu = jumlah limit maksimal cpu
+limits.memory = jumlah limit maksimal memory
+metadata.name = nama pod
+metadata.namespace = namespace pod
+metadata.uid = id pod
+metadata.labels['<key>'] = label pod
+metadata.annotations['<key>'] = annotation pod
+status.podIP = ip address pod
+status.hostIP = IP address node
+spec.serviceAccountName = nama service account pod
+spec.nodeName = nama node
+
+
+Imperative Management:
+kubectl create -f namafile.yaml (membuat kubernetes object yang ada dalam file tersebut)
+kubectl replace -f namafile.yaml (mengupdate kubernetes object yang ada dalam file tersebut *tidak semua bisa di update)
+kubectl get -f namafile.yaml -o yaml/json (melihat kubernetes object yang ada dalam file tersebut)
+kubectl delete -f namafile.yaml (menghapus kubernetes object yang ada dalam file tersebut)
+
+Declarative Management:
+kubectl apply -f namafile.yaml (membuat/mengupdate kubernetes object yang ada dalam file tersebut)
+kelebihan:
+- saat menggunakan declarative management, file konfigurasi/yaml akan disimpan didalam annotations object, ini berguna untuk rollback version.
+- hal ini sangat bermanfaat saat menggunakan object Deployment
+
+Deployment:
+pada nantinya kita tidak akan membuat pod/replicaset secara manual untuk aplikasi kita, melaikan menggunakan deployment, dibelakang deployment adalah replicaset, seolah olah deployment adalah yang mengontrol replicaset, penamaan pod pun akan mengikuti replicaset yang dibuat oleh deployment.
+
+Update Deployment:
+cara kerja update pada deployment, deployment akan membuat replicaset baru dan menunggu pod yang dibuat dari replicaset tersebut ready dan running, ketika pod yang baru sudah terbuat maka pod yang lama dari replicaset sebelumnya akan di terminate/delete. dan replicaset yang lama tidak akan dihapus.
+pada defaultnya replicaset yang akan disimpan maksimal 10.
+
+Rollback Deployment:
+di k8s rollback deployment bisa meng apply file konfigurasi yang digunakan sebelumnya, tetapi itu cara manual. ada cara otomatisnya menggunakan kubernetes rollout.
+k8s rollout command:
+kubectl rollout history object name (melihat history rollout)
+kubectl rollout pause object name (menandai sebagai pause)
+kubectl rollout resume object name (resume pause)
+kubectl rollout restart object name (merestart rollout)
+kubectl rollout status object name (melihat status rollout)
+kubectl rollout undo object name (undo ke rollout sebelumnya)
+catatan, object diatas deployments/daemonsets/statefullset
+
+
+Persistant Volume: 
+sama dengan volume biasa, tetapi dengan cara kerja dan cara pembuatan yang berbeda.
+tahapan PV:
+  - membuat persistant volume
+  - membuat persistant volume Claim
+  - menambahkan persistant volume claim ke pod
+kelebihan, bisa memberikan garansi size yang akan ditentukan untuk pod tujuan (yang mengklaim).
+Persistent volume Command:
+kubectl get pv
+kubectl describe pv namapv
+kubectl detele pv namapv
+kubectl get pvc
+kubectl descirve pvc namapvc 
+kubectl detele pvc namapvc
+
+
+StateFullSet:
+pod, rs, rc, deployment adalah object yang cocok digunakan untuk aplikasi jenis stateless, stateless artinya aplikasi yang tidak menyimpan state/data.
+lalu bagaimana dengan aplikasi yang harus menyimpan data(statefull) seperti database yang tidak boleh sembarangan dihapus di tengah jalan ketika melakukan update aplikasi? statefullset jawabannya.
+
+cara kerja statefullset adalah setiap pod mengklaim pvcnya masing masing (tidak boleh shared pvc).
+statefull akan memastikan bahwa nama pod yang konsisten (tidak random seperti rs/rc), identitas network yang stabil dan persistent volume yang stabil untik tiap pod, jika ada ada pod yang mati maka akan membuat nama dan informasi yang sama dengan pod mati tersebut.
+
+
+Kubernetes Dashboard:
+untuk melihat dan mengelola object dengan GUI, aktif di namespace yang berbeda dengan default
