@@ -17,6 +17,7 @@ Node:
 node adalah worker machine di kubernetes, node bisa saja dalam bentuk VM atau bentuk fisik.
 di dalam node selalu terdapat kubelete, kube-proxy dan container manager.
 
+===========================================================================================
 perintah / command prompt kubectl
 1. kubectl get nodes [untuk melihat semua node yang ada]
 2. kubectl describe node namaNode [untuk melihat detail node yang dituju]
@@ -32,11 +33,24 @@ perintah / command prompt kubectl
 12. kubectl get pod --namespace namanamespace [untuk melihat semua pod di namespace yang dituju, gunakana parameter -n untuk menyingkat]
 13. kubectl create -f namafile.yaml --namespace namanamespace [untuk membuat pod dengan namespace spesific, dengan catatan namespace tersebut harus sudah ada/dibuat]
 14. kubectl delete namespace namanamespace [jika namespace dihapus, maka semua pod yang menggunakan namespace tersebut akan dihapus juga]
-15. kubectl delete pod namapod1 namapod2 namapod3 [untuk menghapus pod]
+15. kubectl delete pod namapod1 namapod2 namapod3 [untuk menghapus pod] 
 16. kubectl delete pod --all --namespace namanamespace [menghapus semua pod berdasarkan namespace]
 17. kubectl get replicationcontroller [untuk melihat semua replicacontroller, bisa juga menggunakan kubectl get rc ]
 18. kubectl delete replicationcontroller namarc [untuk menghapus rc, jika rc dihapus maka semua pod yang didalamnya juga terhapus, jika pod yang didalamnya tidak terhapus gunakan parameter --cascade=false ]
 19. kubectl get replicaset [untuk menampilkan semua rs yang ada]
+20. kubectl label node namanode key=value
+21. kubectl get all
+21. kubectl get all --namespace namanamespace
+22. kubectl delete all --all
+23. kubectl delete all --all --namespace namanamespace
+25. kubectl exec nama-pod -- env [melihat env di pod]
+26. kubectl get endpoints nama-service
+27. minikube service nginx-service [untuk melihat node ip yang di exposes]
+28. kubectl apply -f deployment.yaml (membuat deployment)
+29. kubectl get deployments (melihat semua deployment)
+30. kubectl delete deployment namadeployment (menghapus deployment)
+31. kubectl describe deployment namadeployment (melihat deployment secara detail)
+===========================================================================================
 
 Pod:
 kenapa butuh pod? kenapa gak langsung container?: karena pod flexibel,  isolasi, skalabilitas, managemen resource.
@@ -117,4 +131,179 @@ job akan mati jika pekerjaannya akan selesai.
     1. backup atau restore database
     2. import atay expore data
     3. aplikasi batch
+
+Cronjob:
+cronjob di k8s menggunakan cronjob linux pada umumnya, berbeda dengan job, cronjob menggunakan JobTemplate.
+
+Nodeselector:
+jika kita tidak mengatur node mana yang akan di pilih ketika mendeploy maka k8s akan secara otomatis memilih node secara random.
+kita juga bisa mengatur jika ingin menentukan di node mana pod akan dibuat dengan memambahkan label pada nod.
+contoh kasus node yang dituju memiliki spesifikasi yang mumpuni seperti menggunakan GPU Dedicated, dan SSD.
+
+Get All:
+bisa digunakan untuk melihat semua resource (rs, ds, rc, cr, job, service)
+bisa juga digunakan untuk menghapus.
+kita juga bisa menambahkan parameter
+
+=============================[ SERVICE SERIES]=============================
+Service:
+service adalah resource di k8s yang digunakan untuk membuat satu gerbang untuk mengakses satu atau lebih Pod.
+service memiliki ip address dan port yang tidak pernah berubah selama service itu ada.
+client bisa mengakses service tersebut, dan secara otomatis akan meneruskan ke pod yang ada dibelakang service tersebut.
+dengan begini client/host tidak perlu tahu lokasi tiap pod, dan pod bisa bertambah berkurang, atau berpindah tanpa harus mengganggu client.
+ip atau port yang ada di service hanya bisa di akses oleh pod.
+
+jika pod lain ingin mengakses (pod lain) menggunakan service secara langsung tanpa harus mengetahui ip service, kita bisa menggunakan ENV variable atau DNS 
+  dengan syntax: nama-service.nama-namespace.svc.cluster.local , dengan catatan masih di dalam service yang sama.
+
+Endpoint:
+terkadang pod(aplikasi) membutuhkan akses ke aplikasi luar contoh payment gateway dan ekspedisi, external service atau endpoint bisa mengatasi itu, dibandingkan setiap pod mengaksesnya secara langsung kita bisa membuat endpoint yang menghandle itu semua.
+secara singkat ini adalah mengakses link/url di luar service (transmit/get data).
+
+Eksposes Service: 
+contoh: client/mobile/internet yang mengaksesnya.
+
+Tipe-tipe Service:
+- ClusterIp: mengekspos service di dalam internal kubernetes cluster (default)
+- ExternalName: memetakan service ke externalname (misalnya: example.com)
+- NodePort: mengekspos service pada setiap ip node dan port yang sama, kita bisa mengakses service dengant tipe ini, dari luar cluster melalui <nodeip>:<node:port>
+- LoadBalancer: mengeskpos service secara external dengan menggunakan loadbalanceer yang disediakan oleh penyedia layanan cloud.
+
+cara untuk ekspos service:
+-> dengan menggunakan nodePort, node akan membuka port yang akan meneruskan request ke service yang dituju.
+   dengan menambahkan type: NodePort dan nantinya akan dibuat port otomatis atau bisa juga kita tentukan. 
+   kekurangan:  harus mengekspos semua node yang ada, dan juga harus menghapal node dan ip yang ada bayangkan jika ada beberapa node maka akan sangat merepotkan.
+   
+-> dengan menggunakan loadbalancer, service bisa di akses via lb dan akan meneruskan request ke node port dan di lanjutkan ke service.
+   dengan menambahkan type: LoadBalancer dan nantinya akan dibuat port otomatis.
+   kekurangan:  harus mengekspos semua node yang ada, dan juga harus menghapal node dan ip yang ada.
+    
+-> menggunakan ingress, dimana ingress adalah resource yang memang ditujukan untuk mengekspos service. kekurangan inggress hanya beroperasi di level HTTP.
+    
+=============================[ SERVICE SERIES]=============================
+
+
+
+=============================[ VOLUME SERIES]=============================
+VOLUME:
+berkas/file/data di dalam container sifatnya tidak permanen, akan terhapus seiring dihapusnya pod atau container ataupun merestart, volume secara sederhana adalah sebuah directori yang bisa di akses oleh contianer-container di Pod.
+jenis-jenis volume:
+emptyDir: direktori sederhana (kosong) | tidak cocok digunakan di Prod
+hostPath: digunakan untuk menghasring direktori di node ke pod
+gitRepo: directory yang dibuat pertama kali dengan mengclone git repo
+nfs: sharing network file system.
+dll.
+
+Sharing Volume:
+karena didalam pod kita bisa membuat lebih dari satu container, maka volume di pod pun bisa kita sharing ke beberapa container.
+contoh, container pertama akan membuat file, container kedua akan memproses file.
+=============================[ VOLUME SERIES]=============================
+
+Environment Variable:
+environment variable di kubernetes sama/tidak beda jauh dengan environment di kontainer, yaitu agar dynamis tidak di hardcode.
+
+
+Config Map:
+digunakan untuk menyimpan konfigurasi aplikasi, seperti variabel lingkungan dan file konfigurasi, sebagai pasangan kunci-nilai. 
+
+
+Secret:
+sama seperti configmap tetapi dengan data yang sifatnya sensitive, seperti username password database, API key, Secret key dsj.
+data: (berarti memasukan data dalam bentuk bas64)
+stringData:(berarti memasukan dalam bentuk plainText)
+
+
+Downrade API:
+downward api memungkinankan kita mengambil informasi seputar pod dan node maelalui env variable.
+list metatada
+request.cpu = jumlah cpu yang di request
+request.memory = jumlah memory yang di request
+limits.cpu = jumlah limit maksimal cpu
+limits.memory = jumlah limit maksimal memory
+metadata.name = nama pod
+metadata.namespace = namespace pod
+metadata.uid = id pod
+metadata.labels['<key>'] = label pod
+metadata.annotations['<key>'] = annotation pod
+status.podIP = ip address pod
+status.hostIP = IP address node
+spec.serviceAccountName = nama service account pod
+spec.nodeName = nama node
+
+
+Imperative Management:
+kubectl create -f namafile.yaml (membuat kubernetes object yang ada dalam file tersebut)
+kubectl replace -f namafile.yaml (mengupdate kubernetes object yang ada dalam file tersebut *tidak semua bisa di update)
+kubectl get -f namafile.yaml -o yaml/json (melihat kubernetes object yang ada dalam file tersebut)
+kubectl delete -f namafile.yaml (menghapus kubernetes object yang ada dalam file tersebut)
+
+Declarative Management:
+kubectl apply -f namafile.yaml (membuat/mengupdate kubernetes object yang ada dalam file tersebut)
+kelebihan:
+- saat menggunakan declarative management, file konfigurasi/yaml akan disimpan didalam annotations object, ini berguna untuk rollback version.
+- hal ini sangat bermanfaat saat menggunakan object Deployment
+
+Deployment:
+pada nantinya kita tidak akan membuat pod/replicaset secara manual untuk aplikasi kita, melaikan menggunakan deployment, dibelakang deployment adalah replicaset, seolah olah deployment adalah yang mengontrol replicaset, penamaan pod pun akan mengikuti replicaset yang dibuat oleh deployment.
+
+Update Deployment:
+cara kerja update pada deployment, deployment akan membuat replicaset baru dan menunggu pod yang dibuat dari replicaset tersebut ready dan running, ketika pod yang baru sudah terbuat maka pod yang lama dari replicaset sebelumnya akan di terminate/delete. dan replicaset yang lama tidak akan dihapus.
+pada defaultnya replicaset yang akan disimpan maksimal 10.
+
+Rollback Deployment:
+di k8s rollback deployment bisa meng apply file konfigurasi yang digunakan sebelumnya, tetapi itu cara manual. ada cara otomatisnya menggunakan kubernetes rollout.
+k8s rollout command:
+kubectl rollout history object name (melihat history rollout)
+kubectl rollout pause object name (menandai sebagai pause)
+kubectl rollout resume object name (resume pause)
+kubectl rollout restart object name (merestart rollout)
+kubectl rollout status object name (melihat status rollout)
+kubectl rollout undo object name (undo ke rollout sebelumnya)
+catatan, object diatas deployments/daemonsets/statefullset
+
+
+Persistant Volume: 
+sama dengan volume biasa, tetapi dengan cara kerja dan cara pembuatan yang berbeda.
+tahapan PV:
+  - membuat persistant volume
+  - membuat persistant volume Claim
+  - menambahkan persistant volume claim ke pod
+kelebihan, bisa memberikan garansi size yang akan ditentukan untuk pod tujuan (yang mengklaim).
+Persistent volume Command:
+kubectl get pv
+kubectl describe pv namapv
+kubectl detele pv namapv
+kubectl get pvc
+kubectl descirve pvc namapvc 
+kubectl detele pvc namapvc
+
+
+StateFullSet:
+pod, rs, rc, deployment adalah object yang cocok digunakan untuk aplikasi jenis stateless, stateless artinya aplikasi yang tidak menyimpan state/data.
+lalu bagaimana dengan aplikasi yang harus menyimpan data(statefull) seperti database yang tidak boleh sembarangan dihapus di tengah jalan ketika melakukan update aplikasi? statefullset jawabannya.
+
+cara kerja statefullset adalah setiap pod mengklaim pvcnya masing masing (tidak boleh shared pvc).
+statefull akan memastikan bahwa nama pod yang konsisten (tidak random seperti rs/rc), identitas network yang stabil dan persistent volume yang stabil untik tiap pod, jika ada ada pod yang mati maka akan membuat nama dan informasi yang sama dengan pod mati tersebut.
+
+
+Kubernetes Dashboard:
+untuk melihat dan mengelola object dengan GUI, aktif di namespace yang berbeda dengan default.
+
+
+Computional Resource:
+adalah kemampuan untuk melimitasi penggunaan dari sebuah pod, fungsi limitasi pod disini agar tidak menggangu aplikasi/pod lain, jika di dalam 1 node terdapat beberapa aplikasi/pod, lalu ada 1 aplikasi/node yang memakan resource yang sangat besar maka pod/aplikasi lain akan terdampak, maka kita perlu mengaturnya.
+kita bisa request dan limit.
+requests: adalah minimal resource yang tersedia pada node, kubernetes akan melihat apakah resource yang di request sudah sesuai, jika sudah maka pod akan dibuat.
+limit: adalah maksimal penggunaan dari resource, jika pod menggunakan resource lebih dari yang dilimit maka pod akan di kill.
+
+
+Horizontal Pod Autoscaller:
+
+Vertical Scalling adalah application scalling dengan cara mengupgrade computional resource, misal dari 1 cpu/ram ke 2 cpu/ram. permasalahannya, vertical scalling akan ada batasnya, pod di k8s tidak bisa menggunakan resource melebihi resource node yang ada.
+- VPA, fiturnya masih beta, hanya tersedia di beberapa cloud platform
+
+Horizontal Scalling adalah application scalling dengan cara membuat Pod baru agar beban pekerjaan bisa di distribusikan ke pod baru tersebut, ini adalah cara scalling terbaik karena kita tidak butuh upgrade node dengan resource yang lebih tinggi.
+- HPA, adalah kemampuan secara otomatis application scaling secara horizontal dengan cara menambah pod baru dan menurunkan secara otomatis jika diperlukan, HPA adalah object di kubernetes.
+cara kerja HPA adalah mendengarkan data metrics dari setiap pod, dan jika sudah mencapai limit/batas tertentu, hpa akan melakukan auto scalling (baik menambah atau mengurangi pod).
+hati hati dalam penggunaan triger memory, contohnya penggunaan JAVA, java akan memakan memory sampai habis sampai, ketika habis baru menjalankan garbage collection.
 
