@@ -286,4 +286,23 @@ statefull akan memastikan bahwa nama pod yang konsisten (tidak random seperti rs
 
 
 Kubernetes Dashboard:
-untuk melihat dan mengelola object dengan GUI, aktif di namespace yang berbeda dengan default
+untuk melihat dan mengelola object dengan GUI, aktif di namespace yang berbeda dengan default.
+
+
+Computional Resource:
+adalah kemampuan untuk melimitasi penggunaan dari sebuah pod, fungsi limitasi pod disini agar tidak menggangu aplikasi/pod lain, jika di dalam 1 node terdapat beberapa aplikasi/pod, lalu ada 1 aplikasi/node yang memakan resource yang sangat besar maka pod/aplikasi lain akan terdampak, maka kita perlu mengaturnya.
+kita bisa request dan limit.
+requests: adalah minimal resource yang tersedia pada node, kubernetes akan melihat apakah resource yang di request sudah sesuai, jika sudah maka pod akan dibuat.
+limit: adalah maksimal penggunaan dari resource, jika pod menggunakan resource lebih dari yang dilimit maka pod akan di kill.
+
+
+Horizontal Pod Autoscaller:
+
+Vertical Scalling adalah application scalling dengan cara mengupgrade computional resource, misal dari 1 cpu/ram ke 2 cpu/ram. permasalahannya, vertical scalling akan ada batasnya, pod di k8s tidak bisa menggunakan resource melebihi resource node yang ada.
+- VPA, fiturnya masih beta, hanya tersedia di beberapa cloud platform
+
+Horizontal Scalling adalah application scalling dengan cara membuat Pod baru agar beban pekerjaan bisa di distribusikan ke pod baru tersebut, ini adalah cara scalling terbaik karena kita tidak butuh upgrade node dengan resource yang lebih tinggi.
+- HPA, adalah kemampuan secara otomatis application scaling secara horizontal dengan cara menambah pod baru dan menurunkan secara otomatis jika diperlukan, HPA adalah object di kubernetes.
+cara kerja HPA adalah mendengarkan data metrics dari setiap pod, dan jika sudah mencapai limit/batas tertentu, hpa akan melakukan auto scalling (baik menambah atau mengurangi pod).
+hati hati dalam penggunaan triger memory, contohnya penggunaan JAVA, java akan memakan memory sampai habis sampai, ketika habis baru menjalankan garbage collection.
+
