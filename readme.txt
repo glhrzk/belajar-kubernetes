@@ -179,7 +179,7 @@ cara untuk ekspos service:
     
 -> menggunakan ingress, dimana ingress adalah resource yang memang ditujukan untuk mengekspos service. kekurangan inggress hanya beroperasi di level HTTP.
     
-=============================[ SERVICE SERIES]=============================
+=============================[ END SERVICE SERIES]=============================
 
 
 
@@ -196,7 +196,7 @@ dll.
 Sharing Volume:
 karena didalam pod kita bisa membuat lebih dari satu container, maka volume di pod pun bisa kita sharing ke beberapa container.
 contoh, container pertama akan membuat file, container kedua akan memproses file.
-=============================[ VOLUME SERIES]=============================
+=============================[ END VOLUME SERIES]=============================
 
 Environment Variable:
 environment variable di kubernetes sama/tidak beda jauh dengan environment di kontainer, yaitu agar dynamis tidak di hardcode.
